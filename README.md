@@ -20,14 +20,8 @@ Device tree for building Team Win Recovery Project (TWRP) for the Xiaomi 17 (Pud
 
 * Boots successfully
 * Touchscreen
-* Data decryption
+* Data decryption — stable
 * ADB / Fastbootd
-
-### Known Issues
-
-* Kernel-zip installers based on AnyKernel3 fail active-slot detection unless
-  patched separately; the recovery's own A/B flashing path is not affected
-  (confirmed with a full ROM install).
 
 ## Notes
 
