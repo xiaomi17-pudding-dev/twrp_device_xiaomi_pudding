@@ -1,9 +1,12 @@
+# stock-derived onekeymint service for pudding fix22ZU
+# replaces vendor.keymint-qti with vendor.keymint
+
 on init
     start vendor.keymint
 
 service vendor.keymint /vendor/bin/hw/android.hardware.security.onekeymint-service-qti
     class early_hal
-    user root
-    group root drmrpc
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/system/lib64:/sbin:/odm/lib64
+    user system
+    group system drmrpc
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64:/sbin
     seclabel u:r:recovery:s0

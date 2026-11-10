@@ -1,6 +1,6 @@
 <!--
-    Input:
-        vendor/qcom/proprietary/securemsm/onekeymint/android.hardware.security.onekeymint-service-qti.xml
+    fix22ZV: stock onekeymint manifest plus the default secureclock/sharedsecret
+    declarations required by the recovery runtime.
 -->
 <manifest version="9.0" type="device">
     <hal format="aidl">
@@ -12,5 +12,13 @@
         <name>android.hardware.security.keymint</name>
         <version>3</version>
         <fqname>IRemotelyProvisionedComponent/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>android.hardware.security.secureclock</name>
+        <fqname>ISecureClock/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>android.hardware.security.sharedsecret</name>
+        <fqname>ISharedSecret/default</fqname>
     </hal>
 </manifest>

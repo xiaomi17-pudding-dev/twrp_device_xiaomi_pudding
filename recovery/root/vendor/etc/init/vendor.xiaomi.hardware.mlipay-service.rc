@@ -1,0 +1,6 @@
+service vendor.mlipay /vendor/bin/mlipayd
+    class hal
+    user system
+    group system
+    disabled
+    seclabel u:r:recovery:s0

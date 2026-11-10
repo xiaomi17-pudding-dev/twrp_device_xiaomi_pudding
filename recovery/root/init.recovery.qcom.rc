@@ -1,32 +1,15 @@
 # Copyright (c) 2017-2023, The Linux Foundation. All rights reserved.
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * Neither the name of The Linux Foundation nor
-#       the names of its contributors may be used to endorse or promote
-#       products derived from this software without specific prior written
-#       permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NON-INFRINGEMENT ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
+# pudding fix22AAR:
+# - keep the real persist mount on /mnt/vendor/persist, matching stock/vendor expectations
+# - expose /persist only as an alias, so TWRP stops fighting a second mount
+# - export slot props into /odm/etc build prop files for installer-side AK3 shell logic
+
+import /init.recovery.wifi.rc
 
 on init
     start vendor.boot-qti
+    setprop prepdecrypt.setpatch true
 
 on early-fs
     write /proc/sys/walt/sched_lib_name "recovery,magiskboot,Updater,updater,update_engine_sideload"
@@ -41,77 +24,82 @@ on fs
     chmod 0664 /dev/ion
     chown system system /dev/ion
     mkdir /mnt/vendor 0775 shell system
-    mkdir /mnt/vendor/persist 0775 shell system
-    wait /dev/block/bootdevice/by-name/persist
-    mount ext4 /dev/block/bootdevice/by-name/persist /persist noatime nosuid nodev barrier=1
-    mount none /persist /mnt/vendor/persist bind
+    mkdir /mnt/vendor/persist 0771 root system
     install_keyring
 
 on post-fs
+    start odm.ak3-slot-compat
+    start odm.persist-alias-setup
     start odm.variant-script
 
 on boot
     setprop sys.usb.config adb
 
 on property:twrp.modules.loaded=true
-    # Mount firmware
-    mkdir /vendor/firmware
-    mkdir /vendor/firmware_mnt
-    mkdir /vendor/firmware_mnt/image
-    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /vendor/firmware_mnt ro
-    mount none /vendor/firmware_mnt/image /vendor/firmware bind rec
-    # Load ADSP firmware for PMIC
-    wait /sys/kernel/boot_adsp/boot
-    write /sys/kernel/boot_adsp/boot 1
-    # This make USB-OTG work
+    mkdir /firmware
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /firmware ro
     wait /sys/kernel/boot_adsp/ssr
     write /sys/kernel/boot_adsp/ssr 1
     wait /sys/class/power_supply/battery
     start vendor.health-default
+    umount /vendor
+    symlink /firmware /vendor/firmware_mnt
 
-on property:servicemanager.ready=true
-    setprop sys.boot_completed 1
+on property:ro.crypto.state=encrypted && property:ro.boot.dynamic_partitions=true
+    start odm.decrypt-gate
 
 on property:twrp.variant.files_copied=1
-    start odm.vibratorfeature-hal-service
+    start odm.vibratorfeature-service
     start odm.touch_report
+    start odm.weaver-service
+    setprop twrp.pudding.fix22zr.strongbox_enabled 1
+    start odm.secure-element-ta-setup
 
-on property:twrp.variant.files_copied=1 && property:ro.keymint=nxp && property:twrp.variant.detected=pandora
-    start odm.pandora-nxp-stabilize
+on property:twrp.pudding.fix22zr.ready=1
+    stop vendor.qwesd
+    stop vendor.minkdaemon
+    stop vendor.secure_element
+    stop vendor.keymint-strongbox
+    stop odm.se_omapi
+    rm /vendor/firmware_mnt
+    symlink /tmp/secure_element_fwroot /vendor/firmware_mnt
+    setprop twrp.pudding.fix22zr.bind_done 1
+    start vendor.secure_element
+    start vendor.keymint-strongbox
+    start odm.se_omapi
+    start odm.secure-element-followup
 
-on property:twrp.variant.files_copied=1 && property:ro.keymint=nxp && property:twrp.variant.detected=popsicle
-    start odm.popsicle-nxp-gate
-
-on property:twrp.variant.files_copied=1 && property:ro.keymint=thales
-    start odm.weaver_hal_service
-    start odm.keymint-strongbox-thales
-
-on property:twrp.variant.files_copied=1 && property:ro.keymint=thales && property:twrp.variant.detected=nezha
-    start odm.secure_element_hal_service
-
-on property:twrp.variant.files_copied=1 && property:ro.keymint=thales && property:twrp.variant.detected=nezha
-    start odm.nezha-goodix-stop-gate
-
-# combined_v26: pandora-only NXP stabilization gate.
-service odm.pandora-nxp-stabilize /system/bin/pandora-nxp-stabilize.sh
+service odm.secure-element-ta-setup /system/bin/secure-element-ta-setup.sh
     disabled
     oneshot
     user root
-    group root shell
+    group root
     seclabel u:r:recovery:s0
 
-# combined_v26: popsicle-only NXP startup gate.
-service odm.popsicle-nxp-gate /system/bin/popsicle-nxp-gate.sh
+service odm.secure-element-followup /system/bin/secure-element-followup.sh
     disabled
     oneshot
     user root
-    group root shell
+    group root
     seclabel u:r:recovery:s0
 
-# combined_v26: nezha-only Goodix secure-element stop gate.
-service odm.nezha-goodix-stop-gate /system/bin/nezha-goodix-stop-gate.sh
+service odm.persist-alias-setup /system/bin/persist-alias-setup.sh
     disabled
     oneshot
     user root
-    group root shell
+    group root
+    seclabel u:r:recovery:s0
+
+service odm.ak3-slot-compat /system/bin/ak3-slot-compat.sh
+    disabled
+    oneshot
+    user root
+    group root
+    seclabel u:r:recovery:s0
+
+service odm.decrypt-gate /system/bin/decrypt-gate.sh
+    disabled
+    oneshot
+    user root
+    group root
     seclabel u:r:recovery:s0

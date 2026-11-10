@@ -2,10 +2,9 @@
     Input:
         vendor/xiaomi/proprietary/mm-vibrator/hal/vendor.xiaomi.hardware.vibratorfeature.service.xml
 -->
-<manifest version="9.0" type="device">
+<manifest version="8.0" type="device">
     <hal format="aidl" override="true">
         <name>android.hardware.vibrator</name>
-        <version>2</version>
-        <fqname>IVibrator/default</fqname>
+        <fqname>IVibrator/vibratorfeature</fqname>
     </hal>
 </manifest>

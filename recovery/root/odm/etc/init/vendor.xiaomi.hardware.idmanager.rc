@@ -1,0 +1,9 @@
+service vendor.idmanger /odm/bin/idmanager
+    class hal
+    user system
+    group system root
+    oneshot
+    disabled
+    interface aidl vendor.xiaomi.hardware.idmanager.IIdManagerService/default
+    interface aidl vendor.xiaomi.hardware.idmanager.ISecidService/default
+    seclabel u:r:recovery:s0
