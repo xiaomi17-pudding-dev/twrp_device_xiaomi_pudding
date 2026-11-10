@@ -206,6 +206,11 @@ TW_ENABLE_ALL_PARTITION_TOOLS := true
 TW_INCLUDE_7ZA := true
 TW_USE_DMCTL := true
 TW_FORCE_USE_BUSYBOX := true
+# Screen: start the UI below the 150 px status bar area of the stock overlay
+# (centred camera cutout); the 190 px rounded corners then stay clear of
+# the header and the navigation bar.
+TW_Y_OFFSET := 150
+TW_H_OFFSET := -150
 TW_OVERRIDE_PROPS_ADDITIONAL_PARTITIONS := odm
 TW_OVERRIDE_SYSTEM_PROPS := \
     "ro.build.date.utc;ro.bootimage.build.date.utc=ro.build.date.utc;ro.odm.build.date.utc=ro.build.date.utc;ro.product.build.date.utc=ro.build.date.utc;ro.system.build.date.utc=ro.build.date.utc;ro.system_ext.build.date.utc=ro.build.date.utc;ro.vendor.build.date.utc=ro.build.date.utc;ro.build.product=ro.product.device;ro.build.fingerprint=ro.bootimage.build.fingerprint;ro.build.version.incremental=ro.bootimage.build.version.incremental;ro.product.odm.device;ro.vendor.product.device.oem;ro.vendor.product.device.oem;ro.product.device=ro.vendor.product.device.oem"
