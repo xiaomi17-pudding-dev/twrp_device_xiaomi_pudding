@@ -60,8 +60,8 @@ case "$variant" in
 "pudding")
     model="$base_name 17"
     resetprop ro.twrp.device_version "Xiaomi_17"
-    resetprop ro.twrp.y_offset "116"
-    resetprop ro.twrp.h_offset "-116"
+    resetprop ro.twrp.y_offset "150"
+    resetprop ro.twrp.h_offset "-150"
     resetprop ro.odm.mm.vibrator.he1.0 "mihaptic"
     set_vibrator_props "170" "20" "/sys/class/qcom-haptics" "agm"
     ;;
