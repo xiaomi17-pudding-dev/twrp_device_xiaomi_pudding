@@ -198,6 +198,14 @@ TW_NO_HAPTICS := true
 TW_NO_SCREEN_BLANK := true
 TW_INCLUDE_REPACKTOOLS := true
 TW_INCLUDE_RESETPROP := true
+# Partition, file system and archive tools of the released image
+TW_INCLUDE_NTFS_3G := true
+TW_INCLUDE_LPTOOLS := true
+TW_INCLUDE_LPDUMP := true
+TW_ENABLE_ALL_PARTITION_TOOLS := true
+TW_INCLUDE_7ZA := true
+TW_USE_DMCTL := true
+TW_FORCE_USE_BUSYBOX := true
 TW_OVERRIDE_PROPS_ADDITIONAL_PARTITIONS := odm
 TW_OVERRIDE_SYSTEM_PROPS := \
     "ro.build.date.utc;ro.bootimage.build.date.utc=ro.build.date.utc;ro.odm.build.date.utc=ro.build.date.utc;ro.product.build.date.utc=ro.build.date.utc;ro.system.build.date.utc=ro.build.date.utc;ro.system_ext.build.date.utc=ro.build.date.utc;ro.vendor.build.date.utc=ro.build.date.utc;ro.build.product=ro.product.device;ro.build.fingerprint=ro.bootimage.build.fingerprint;ro.build.version.incremental=ro.bootimage.build.version.incremental;ro.product.odm.device;ro.vendor.product.device.oem;ro.vendor.product.device.oem;ro.product.device=ro.vendor.product.device.oem"
