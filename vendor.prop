@@ -19,7 +19,6 @@ ro.product.debugfs_restrictions.enabled=true
 ro.board.first_api_level=35
 ro.board.api_level=202504
 ro.board.api_frozen=true
-ro.vendor.build.security_patch=2026-02-01
 ro.product.board=sun
 ro.board.platform=xiaomi_sm8750
 
